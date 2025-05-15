@@ -21,8 +21,31 @@ h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
   align-items: center;
   padding: 1rem;
   text-align: center;
+  color: white;
 }
-#question{font-size:2.5rem;margin:1rem 0;}
+#question {
+  font-size: 2.5rem;
+  margin: 1rem 0;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+}
+
+/* Status bar: player, score and lives */
+#game-area > div:first-child {
+  font-size: 1.2rem;
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
 #feedback{font-size:2rem;margin:1rem;}
 #progress{height:20px;background:#ddd;margin:1rem 0;border-radius:10px;overflow:hidden;}
 #progress-inner{height:100%;background:var(--accent);width:100%;}

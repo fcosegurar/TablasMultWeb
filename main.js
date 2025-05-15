@@ -61,7 +61,7 @@ function startMenu(){
 function showMenu(){
   app.innerHTML=`
     <div id="game-area">
-      <h1>¡Hola, ${playerName}! ¿Listo para multiplicar?</h1>
+      <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">¡Hola, ${playerName}! ¿Listo para multiplicar?</h1>
       <button onclick="chooseDifficulty('Contrarreloj')">Contrarreloj</button>
       <button onclick="startAdventure()">Aventura</button>
       <button onclick="repasar()">Repasar Tabla</button>
@@ -75,7 +75,7 @@ function chooseDifficulty(selectedMode){
   mode=selectedMode;
   app.innerHTML=`
     <div id="game-area">
-      <h1>Elige dificultad</h1>
+      <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">Elige dificultad</h1>
       ${Object.keys(difficultyLevels).map(d=>`<button onclick="startGame('${d}')">${d}</button>`).join('')}
       <button onclick="showMenu()">Volver</button>
     </div>`;
