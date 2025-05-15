@@ -10,7 +10,18 @@ button{background:var(--accent);color:#fff;border:none;padding:.75rem 1.5rem;mar
 button:hover{opacity:.9}
 input{padding:.5rem 1rem;border:2px solid var(--accent);border-radius:8px;font-size:1rem;margin:.5rem;}
 h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
-#game-area{text-align:center;max-width:600px;width:100%;}
+#game-area {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: url('assets/welcome.png') center/contain no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  text-align: center;
+}
 #question{font-size:2.5rem;margin:1rem 0;}
 #feedback{font-size:2rem;margin:1rem;}
 #progress{height:20px;background:#ddd;margin:1rem 0;border-radius:10px;overflow:hidden;}
@@ -24,4 +35,13 @@ h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
 }
 .shake {
   animation: shake 0.5s ease-in-out;
+}
+
+/* Welcome image styling */
+.welcome-img {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 100%;
+  height: 200px;        /* ajústalo a la altura que prefieras */
+  object-fit: cover;
 }

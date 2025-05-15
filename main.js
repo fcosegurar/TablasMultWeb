@@ -44,7 +44,7 @@ function home(){
   clearInterval(timerId);
   app.innerHTML=`
     <div id="game-area">
-      <h1>🔢 ¡Multiplica y Diviértete! 🔢</h1>
+      <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">🔢 ¡Multiplica y Diviértete! 🔢</h1>
       <input id="name" placeholder="Ingresa tu nombre">
       <div>
         <button onclick="startMenu()">Iniciar</button>
