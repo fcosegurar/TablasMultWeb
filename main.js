@@ -1,5 +1,15 @@
-
 const app=document.getElementById('app');
+
+// Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
+const ADVENTURE_STAGES = [
+  { name: "Etapa 1", tables: [2,3,4], required: 5, color: "#e3f2fd" },
+  { name: "Etapa 2", tables: [5,6,7], required: 5, color: "#ffe0b2" },
+  { name: "Jefe Final", tables: [], required: 0, color: "#ef9a9a" }
+];
+
+let stageIndex = 0;
+let adventureQuestions = [];
+let adventureErrors = [];
 
 const difficultyLevels={
   'Fácil':{time:25,score:1},
@@ -34,7 +44,7 @@ function home(){
   clearInterval(timerId);
   app.innerHTML=`
     <div id="game-area">
-      <h1>Bienvenido a Tablas Mult</h1>
+      <h1>🔢 ¡Multiplica y Diviértete! 🔢</h1>
       <input id="name" placeholder="Ingresa tu nombre">
       <div>
         <button onclick="startMenu()">Iniciar</button>
@@ -45,11 +55,15 @@ function home(){
 function startMenu(){
   playerName=document.getElementById('name').value.trim();
   if(!playerName){alert('Ingresa tu nombre');return;}
+  showMenu();
+}
+
+function showMenu(){
   app.innerHTML=`
     <div id="game-area">
-      <h1>Hola, ${playerName}</h1>
+      <h1>¡Hola, ${playerName}! ¿Listo para multiplicar?</h1>
       <button onclick="chooseDifficulty('Contrarreloj')">Contrarreloj</button>
-      <button onclick="chooseDifficulty('Aventura')">Aventura</button>
+      <button onclick="startAdventure()">Aventura</button>
       <button onclick="repasar()">Repasar Tabla</button>
       <button onclick="startScary()">Scary Mode</button>
       <button onclick="showRecords()">Récords</button>
@@ -63,7 +77,7 @@ function chooseDifficulty(selectedMode){
     <div id="game-area">
       <h1>Elige dificultad</h1>
       ${Object.keys(difficultyLevels).map(d=>`<button onclick="startGame('${d}')">${d}</button>`).join('')}
-      <button onclick="startMenu()">Volver</button>
+      <button onclick="showMenu()">Volver</button>
     </div>`;
 }
 
@@ -89,13 +103,13 @@ function startGame(diff,reviewTable=null){
   timeLimit=difficultyLevels[diff].time;
   app.innerHTML=`
     <div id="game-area">
-      <div>Jugador: ${playerName} | Puntos: <span id="score">0</span> ${mode==='Scary'?'':'| Vidas: <span id="lives">${lives}</span>'}</div>
+      <div>Jugador: ${playerName} | Puntos: <span id="score">0</span> ${mode==='Scary'?'':`| Vidas: <span id="lives">${'❤️'.repeat(lives)}</span>`}</div>
       <div id="progress" style="${mode==='Contrarreloj'?'':'display:none'}"><div id="progress-inner"></div></div>
       <div id="question">Pregunta</div>
       <input id="answer" type="number" placeholder="Tu respuesta">
       <button onclick="checkAnswer()">Responder</button>
       <div id="feedback"></div>
-      <button onclick="home()">Volver al inicio</button>
+      <button onclick="showMenu()">Volver al menú</button>
     </div>`;
   nextQuestion(reviewTable);
   if(mode==='Contrarreloj')startTimer();
@@ -149,7 +163,7 @@ function checkAnswer(timeout=false){
     if(mode==='Scary'){
       showJumpscare();
       saveRecord(playerName,score);
-      setTimeout(()=>home(),1500);
+      setTimeout(()=>showMenu(),1500);
       return;
     }
     lives--;
@@ -158,7 +172,7 @@ function checkAnswer(timeout=false){
       saveRecord(playerName,score);
       home();
     }else{
-      document.getElementById('lives').textContent=lives;
+      document.getElementById('lives').textContent = '❤️'.repeat(lives);
       document.getElementById('feedback').textContent='💔';
       setTimeout(()=>nextQuestion(mode==='Repasar'?current[0]:null),800);
     }
@@ -166,15 +180,118 @@ function checkAnswer(timeout=false){
 }
 
 function showJumpscare(){
-  const overlay=document.createElement('div');
-  overlay.className='overlay';
-  const img=document.createElement('img');
-  const pics=['jump1.png','jump2.png','jump3.png','jump4.png','jump5.png'];
-  img.src='assets/'+pics[Math.floor(Math.random()*pics.length)];
+  // Preload a random image and sound
+  const pics = ['jump1.png','jump2.png','jump3.png','jump4.png','jump5.png'];
+  const imgSrc = 'assets/' + pics[Math.floor(Math.random()*pics.length)];
+  const sound = new Audio('assets/scream1.mp3');
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay shake';
+  // Create image element
+  const img = document.createElement('img');
+  img.src = imgSrc;
   overlay.appendChild(img);
   document.body.appendChild(overlay);
-  const audio=new Audio('assets/scream1.mp3');audio.play();
-  setTimeout(()=>{document.body.removeChild(overlay);},1000);
+  // Play sound when metadata loaded
+  sound.addEventListener('canplaythrough', () => {
+    sound.play().catch(()=>{});
+  });
+  // Remove overlay after sound ends or after 1s if sound fails
+  sound.addEventListener('ended', () => {
+    document.body.removeChild(overlay);
+  });
+  setTimeout(() => {
+    if (document.body.contains(overlay)) {
+      document.body.removeChild(overlay);
+    }
+  }, 1500);
 }
 
 home();
+
+// --- Aventura handlers ---
+
+function startAdventure(){
+  clearInterval(timerId);
+  mode = 'Aventura';
+  stageIndex = 0;
+  adventureErrors = [];
+  score = 0;
+  lives = 3;
+  setupStage();
+}
+
+function setupStage(){
+  clearInterval(timerId);
+  const stage = ADVENTURE_STAGES[stageIndex];
+  app.innerHTML=`
+    <div id="game-area" style="background:${stage.color}">
+      <div>Jugador: ${playerName} | Puntos: <span id="score">${score}</span> | Vidas: <span id="lives">${'❤️'.repeat(lives)}</span></div>
+      <h1>${stage.name}</h1>
+      <div id="question">Cargando...</div>
+      <input id="answer" type="number" placeholder="Tu respuesta">
+      <button onclick="checkAdventureAnswer()">Responder</button>
+      <button onclick="showMenu()">Volver al menú</button>
+      <div id="feedback"></div>
+    </div>`;
+  generateAdventureQuestions(stage);
+  nextAdventureQuestion();
+}
+
+function generateAdventureQuestions(stage){
+  adventureQuestions = [];
+  if(stage.name === "Jefe Final"){
+    if(adventureErrors.length === 0){
+      victoryAdventure();
+      return;
+    }
+    adventureQuestions = [...adventureErrors];
+  } else {
+    for(let i=0;i<stage.required;i++){
+      const a = stage.tables[Math.floor(Math.random()*stage.tables.length)];
+      const b = difficulty === 'Difícil' ? randomInt(2,9) : randomInt(1,10);
+      adventureQuestions.push([a,b]);
+    }
+  }
+}
+
+function nextAdventureQuestion(){
+  if(adventureQuestions.length === 0){
+    stageIndex++;
+    setupStage();
+    return;
+  }
+  const [a,b] = adventureQuestions.shift();
+  document.getElementById('question').textContent = `¿Cuánto es ${a} × ${b}?`;
+  document.getElementById('answer').value='';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('answer').focus();
+  current = [a,b];
+}
+
+function checkAdventureAnswer(){
+  const val = parseInt(document.getElementById('answer').value);
+  const [a,b] = current;
+  if(val === a*b){
+    score++;
+    document.getElementById('score').textContent = score;
+    document.getElementById('feedback').textContent = '👍';
+  } else {
+    adventureErrors.push([a,b]);
+    lives--;
+    document.getElementById('lives').textContent = '❤️'.repeat(lives);
+    document.getElementById('feedback').textContent = '💔';
+    if(lives <=0){
+      alert(`Fin de la aventura. Puntos: ${score}`);
+      saveRecord(playerName,score);
+      showMenu();
+      return;
+    }
+  }
+  setTimeout(nextAdventureQuestion,800);
+}
+
+function victoryAdventure(){
+  alert(`¡Victoria en la aventura con ${score} puntos!`);
+  saveRecord(playerName,score);
+  showMenu();
+}
