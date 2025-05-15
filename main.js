@@ -2,9 +2,9 @@ const app=document.getElementById('app');
 
 // Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
 const ADVENTURE_STAGES = [
-  { name: "Etapa 1", tables: [2,3,4], required: 5, color: "#e3f2fd" },
-  { name: "Etapa 2", tables: [5,6,7], required: 5, color: "#ffe0b2" },
-  { name: "Jefe Final", tables: [], required: 0, color: "#ef9a9a" }
+  { name: "Etapa 1", tables: [2,3,4], required: 5, bgImage: "stage1.png" },
+  { name: "Etapa 2", tables: [5,6,7], required: 5, bgImage: "stage2.png" },
+  { name: "Jefe Final", tables: [], required: 0, bgImage: "stageFinal.png" }
 ];
 
 let stageIndex = 0;
@@ -221,10 +221,23 @@ function startAdventure(){
 }
 
 function setupStage(){
+  // If we've passed the last stage, trigger victory
+  if (stageIndex >= ADVENTURE_STAGES.length) {
+    victoryAdventure();
+    return;
+  }
   clearInterval(timerId);
   const stage = ADVENTURE_STAGES[stageIndex];
+  // If on final boss stage with no errors, win immediately
+  if (stage.name === "Jefe Final" && adventureErrors.length === 0) {
+    victoryAdventure();
+    return;
+  }
   app.innerHTML=`
-    <div id="game-area" style="background:${stage.color}">
+    <div id="game-area" style="
+      background: url('assets/${stage.bgImage}') center/cover no-repeat;
+      background-size: cover;
+    ">
       <div>Jugador: ${playerName} | Puntos: <span id="score">${score}</span> | Vidas: <span id="lives">${'❤️'.repeat(lives)}</span></div>
       <h1>${stage.name}</h1>
       <div id="question">Cargando...</div>
@@ -240,10 +253,7 @@ function setupStage(){
 function generateAdventureQuestions(stage){
   adventureQuestions = [];
   if(stage.name === "Jefe Final"){
-    if(adventureErrors.length === 0){
-      victoryAdventure();
-      return;
-    }
+    // adventureErrors.length === 0 case handled in setupStage
     adventureQuestions = [...adventureErrors];
   } else {
     for(let i=0;i<stage.required;i++){
