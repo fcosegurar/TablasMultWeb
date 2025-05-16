@@ -1,9 +1,5 @@
 const app=document.getElementById('app');
 
-// Initialize tokens for testing: give 2 tokens if none exist
-if (localStorage.getItem("tokens") === null) {
-  localStorage.setItem("tokens", "2");
-}
 
 // Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
 const ADVENTURE_STAGES = [
@@ -443,12 +439,7 @@ function victoryAdventure(){
 }
 
 function showGacha(){
-  // Ensure testing tokens: if none or zero, grant 2 tokens
-  let tokens = getTokens();
-  if (tokens <= 0) {
-    tokens = 6;
-    localStorage.setItem("tokens", tokens.toString());
-  }
+  const tokens = getTokens();
   app.innerHTML = `
     <div id="game-area">
       <h1>🎰 Gachapon 🎰</h1>
