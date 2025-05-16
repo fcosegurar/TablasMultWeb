@@ -37,7 +37,12 @@ const CARDS = [
   { id: "card1", rarity: "R", src: "assets/card1.png" },
   { id: "card2", rarity: "SR", src: "assets/card2.png" },
   { id: "card3", rarity: "SSR", src: "assets/card3.png" },
-  { id: "card4", rarity: "UR", src: "assets/card4.png" }
+  { id: "card4", rarity: "UR", src: "assets/card4.png" },
+  { id: "card5", rarity: "SSR", src: "assets/card5.png" },
+  { id: "card6", rarity: "UR", src: "assets/card6.png" },
+  { id: "card7", rarity: "SR", src: "assets/card7.png" },
+  { id: "card8", rarity: "R", src: "assets/card8.png" },
+  { id: "card9", rarity: "SSR", src: "assets/card9.png" }
 ];
 
 function getTokens() {
@@ -69,8 +74,8 @@ function pickRandom(rarity) {
 }
 function rollGacha() {
   const roll = Math.random();
-  if (roll < 0.01) return pickRandom("UR");
-  if (roll < 0.05) return pickRandom("SSR");
+  if (roll < 0.05) return pickRandom("UR");
+  if (roll < 0.10) return pickRandom("SSR");
   if (roll < 0.20) return pickRandom("SR");
   return pickRandom("R");
 }
@@ -441,7 +446,7 @@ function showGacha(){
   // Ensure testing tokens: if none or zero, grant 2 tokens
   let tokens = getTokens();
   if (tokens <= 0) {
-    tokens = 2;
+    tokens = 6;
     localStorage.setItem("tokens", tokens.toString());
   }
   app.innerHTML = `
@@ -449,6 +454,7 @@ function showGacha(){
       <h1>🎰 Gachapon 🎰</h1>
       <div>Tokens: <span id="token-count">${tokens}</span></div>
       <button onclick="doGacha()">Usar 1 token</button>
+      <button onclick="doGachaBatch()">Usar varios tokens</button>
       <button onclick="showCollection()">Ver colección</button>
       <button onclick="showMenu()">Volver</button>
       <div id="gacha-result" style="margin-top:1rem;"></div>
@@ -483,6 +489,58 @@ function doGacha() {
   `;
   document.body.appendChild(popup);
   document.getElementById('close-card-popup').addEventListener('click', () => {
+    document.body.removeChild(popup);
+    showGacha();
+  });
+}
+
+function doGachaBatch() {
+  let available = getTokens();
+  const count = Math.min(available, 5);
+  if (count <= 0) {
+    alert("No tienes tokens para usar.");
+    return;
+  }
+  const results = [];
+  for (let i = 0; i < count; i++) {
+    useToken();
+    const card = rollGacha();
+    addToCollection(card);
+    results.push(card);
+  }
+  // Update displayed token count
+  const tokenElem = document.getElementById('token-count');
+  if (tokenElem) tokenElem.textContent = getTokens();
+  // Show popup with batch results
+  const popup = document.createElement('div');
+  popup.className = 'overlay';
+  popup.innerHTML = `
+    <div style="
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 90%;
+      margin: auto;
+    ">
+      <h2>¡Cartas Obtenidas (${count})!</h2>
+      <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 0.5rem;
+        margin: 1rem 0;
+      ">
+        ${results.map(c => `
+          <div>
+            <img src="${c.src}" style="max-width:100%;"/>
+            <div>${c.id} (${c.rarity})</div>
+          </div>`).join('')}
+      </div>
+      <button id="close-batch-popup">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  document.getElementById('close-batch-popup').addEventListener('click', () => {
     document.body.removeChild(popup);
     showGacha();
   });
