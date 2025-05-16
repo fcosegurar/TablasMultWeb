@@ -82,3 +82,46 @@ h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
   height: 200px;        /* ajústalo a la altura que prefieras */
   object-fit: cover;
 }
+
+/* Responsive layout for tablets and phones */
+@media (max-width: 1024px) {
+  #game-area {
+    padding: 0.5rem;
+    background-size: cover;
+  }
+  #question {
+    font-size: 2rem;
+  }
+  #game-area > div:first-child {
+    font-size: 1rem;
+  }
+  button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  #game-area {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 4rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  #question {
+    font-size: 1.5rem;
+  }
+  #feedback {
+    font-size: 1.5rem;
+  }
+  #game-area > div:first-child {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.4rem;
+  }
+  button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}
