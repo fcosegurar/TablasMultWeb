@@ -1,5 +1,14 @@
 const app=document.getElementById('app');
 
+// Precarga de imágenes de cartas al iniciar la app
+function preloadCardImages() {
+  CARDS.forEach(card => {
+    const img = new Image();
+    img.src = card.src;
+  });
+}
+
+preloadCardImages();
 
 // Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
 const ADVENTURE_STAGES = [
