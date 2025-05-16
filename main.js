@@ -40,21 +40,45 @@ function showRecords(){
   alert(msg);
 }
 
+function getUsers() {
+  return JSON.parse(localStorage.getItem('users') || '[]');
+}
+function saveUser(name) {
+  let users = getUsers();
+  if (!users.includes(name)) {
+    users.push(name);
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+}
+
 function home(){
   clearInterval(timerId);
+  const users = getUsers();
   app.innerHTML=`
     <div id="game-area">
       <h1 style="color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">🔢 ¡Multiplica y Diviértete! 🔢</h1>
+      <div style="margin-bottom:1rem;">
+        <label for="user-select">Selecciona usuario:</label><br>
+        <select id="user-select">
+          <option value="">-- Nuevo usuario --</option>
+          ${users.map(u=>`<option value="${u}">${u}</option>`).join('')}
+        </select>
+      </div>
       <input id="name" placeholder="Ingresa tu nombre">
       <div>
         <button onclick="startMenu()">Iniciar</button>
       </div>
     </div>`;
+  // Si selecciona usuario, ponerlo en el input
+  document.getElementById('user-select').addEventListener('change', function() {
+    document.getElementById('name').value = this.value;
+  });
 }
 
 function startMenu(){
   playerName=document.getElementById('name').value.trim();
   if(!playerName){alert('Ingresa tu nombre');return;}
+  saveUser(playerName);
   showMenu();
 }
 
