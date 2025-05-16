@@ -277,9 +277,10 @@ function nextQuestion(reviewTable=null){
 function checkAnswer(timeout=false){
   if(mode==='Contrarreloj'&&timerId){clearInterval(timerId);}
   let correct=false;
+  let correctResult = current[0]*current[1];
   if(!timeout){
     const val=parseInt(document.getElementById('answer').value);
-    correct=(val===current[0]*current[1]);
+    correct=(val===correctResult);
   }
   if(correct){
     score+=difficultyLevels[difficulty].score;
@@ -298,13 +299,16 @@ function checkAnswer(timeout=false){
     }
     lives--;
     if(lives<=0){
-      alert('Fin del juego. Puntos: '+score);
-      saveRecord(playerName,score);
-      home();
+      document.getElementById('feedback').textContent = `💔 Respuesta correcta: ${correctResult}`;
+      setTimeout(()=>{
+        alert('Fin del juego. Puntos: '+score);
+        saveRecord(playerName,score);
+        home();
+      }, 1200);
     }else{
       document.getElementById('lives').textContent = '❤️'.repeat(lives);
-      document.getElementById('feedback').textContent='💔';
-      setTimeout(()=>nextQuestion(mode==='Repasar'?current[0]:null),800);
+      document.getElementById('feedback').textContent=`💔 Respuesta correcta: ${correctResult}`;
+      setTimeout(()=>nextQuestion(mode==='Repasar'?current[0]:null),1200);
     }
   }
 }
@@ -421,7 +425,8 @@ function nextAdventureQuestion(){
 function checkAdventureAnswer(){
   const val = parseInt(document.getElementById('answer').value);
   const [a,b] = current;
-  if(val === a*b){
+  const correctResult = a*b;
+  if(val === correctResult){
     score++;
     document.getElementById('score').textContent = score;
     document.getElementById('feedback').textContent = '👍';
@@ -429,15 +434,17 @@ function checkAdventureAnswer(){
     adventureErrors.push([a,b]);
     lives--;
     document.getElementById('lives').textContent = '❤️'.repeat(lives);
-    document.getElementById('feedback').textContent = '💔';
+    document.getElementById('feedback').textContent = `💔 Respuesta correcta: ${correctResult}`;
     if(lives <=0){
-      alert(`Fin de la aventura. Puntos: ${score}`);
-      saveRecord(playerName,score);
-      showMenu();
+      setTimeout(()=>{
+        alert(`Fin de la aventura. Puntos: ${score}`);
+        saveRecord(playerName,score);
+        showMenu();
+      }, 1200);
       return;
     }
   }
-  setTimeout(nextAdventureQuestion,800);
+  setTimeout(nextAdventureQuestion,1200);
 }
 
 function victoryAdventure(){
