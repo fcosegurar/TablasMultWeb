@@ -120,6 +120,49 @@ function startScary(){
   startGame('Medio');
 }
 
+function renderNumericKeyboard() {
+  return `
+    <div id="numeric-keyboard">
+      <div class="num-row">
+        <button type="button" class="num-key">1</button>
+        <button type="button" class="num-key">2</button>
+        <button type="button" class="num-key">3</button>
+      </div>
+      <div class="num-row">
+        <button type="button" class="num-key">4</button>
+        <button type="button" class="num-key">5</button>
+        <button type="button" class="num-key">6</button>
+      </div>
+      <div class="num-row">
+        <button type="button" class="num-key">7</button>
+        <button type="button" class="num-key">8</button>
+        <button type="button" class="num-key">9</button>
+      </div>
+      <div class="num-row">
+        <button type="button" class="num-key">0</button>
+        <button type="button" class="num-key num-del">⌫</button>
+        <button type="button" class="num-key num-enter">↵</button>
+      </div>
+    </div>
+  `;
+}
+
+function attachKeyboardEvents(checkFnName = 'checkAnswer') {
+  const answerInput = document.getElementById('answer');
+  document.querySelectorAll('.num-key').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (this.classList.contains('num-del')) {
+        answerInput.value = answerInput.value.slice(0, -1);
+      } else if (this.classList.contains('num-enter')) {
+        window[checkFnName]();
+      } else {
+        answerInput.value += this.textContent;
+      }
+      answerInput.focus();
+    });
+  });
+}
+
 function startGame(diff,reviewTable=null){
   difficulty=diff;
   score=0;
@@ -130,13 +173,15 @@ function startGame(diff,reviewTable=null){
       <div>Jugador: ${playerName} | Puntos: <span id="score">0</span> ${mode==='Scary'?'':`| Vidas: <span id="lives">${'❤️'.repeat(lives)}</span>`}</div>
       <div id="progress" style="${mode==='Contrarreloj'?'':'display:none'}"><div id="progress-inner"></div></div>
       <div id="question">Pregunta</div>
-      <input id="answer" type="number" placeholder="Tu respuesta">
+      <input id="answer" type="text" placeholder="Tu respuesta" readonly>
+      ${renderNumericKeyboard()}
       <button onclick="checkAnswer()">Responder</button>
       <div id="feedback"></div>
       <button onclick="showMenu()">Volver al menú</button>
     </div>`;
   nextQuestion(reviewTable);
   if(mode==='Contrarreloj')startTimer();
+  attachKeyboardEvents('checkAnswer');
   document.getElementById('answer').focus();
 }
 
@@ -273,13 +318,15 @@ function setupStage(){
       <div>Jugador: ${playerName} | Puntos: <span id="score">${score}</span> | Vidas: <span id="lives">${'❤️'.repeat(lives)}</span></div>
       <h1>${stage.name}</h1>
       <div id="question">Cargando...</div>
-      <input id="answer" type="number" placeholder="Tu respuesta">
+      <input id="answer" type="text" placeholder="Tu respuesta" readonly>
+      ${renderNumericKeyboard()}
       <button onclick="checkAdventureAnswer()">Responder</button>
       <button onclick="showMenu()">Volver al menú</button>
       <div id="feedback"></div>
     </div>`;
   generateAdventureQuestions(stage);
   nextAdventureQuestion();
+  attachKeyboardEvents('checkAdventureAnswer');
 }
 
 function generateAdventureQuestions(stage){

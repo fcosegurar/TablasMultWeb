@@ -83,6 +83,35 @@ h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
   object-fit: cover;
 }
 
+/* Numeric keyboard styling */
+#numeric-keyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+}
+.num-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.2rem;
+}
+.num-key {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 0.2rem;
+  cursor: pointer;
+  box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+  transition: background 0.2s;
+}
+.num-key:active {
+  background: #ad1457;
+}
+
 /* Responsive layout for tablets and phones */
 @media (max-width: 1024px) {
   #game-area {
@@ -123,5 +152,10 @@ h1{font-size:2rem;margin-bottom:1rem;text-align:center;}
   button {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
+  }
+  #numeric-keyboard .num-key {
+    font-size: 1.2rem;
+    width: 2.2rem;
+    height: 2.2rem;
   }
 }
