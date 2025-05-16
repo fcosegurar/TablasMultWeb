@@ -189,21 +189,29 @@ function showJumpscare(){
   // Create image element
   const img = document.createElement('img');
   img.src = imgSrc;
-  overlay.appendChild(img);
-  document.body.appendChild(overlay);
-  // Play sound when metadata loaded
-  sound.addEventListener('canplaythrough', () => {
+  let shown = false;
+  function showOverlay() {
+    if (shown) return;
+    shown = true;
+    overlay.appendChild(img);
+    document.body.appendChild(overlay);
     sound.play().catch(()=>{});
+    // Remove overlay after sound ends or after 1.5s if sound fails
+    sound.addEventListener('ended', () => {
+      if (document.body.contains(overlay)) document.body.removeChild(overlay);
+    });
+    setTimeout(() => {
+      if (document.body.contains(overlay)) {
+        document.body.removeChild(overlay);
+      }
+    }, 1500);
+  }
+  // Show overlay as soon as sound is ready, or after 500ms max
+  let timeout = setTimeout(showOverlay, 500);
+  sound.addEventListener('canplaythrough', () => {
+    clearTimeout(timeout);
+    showOverlay();
   });
-  // Remove overlay after sound ends or after 1s if sound fails
-  sound.addEventListener('ended', () => {
-    document.body.removeChild(overlay);
-  });
-  setTimeout(() => {
-    if (document.body.contains(overlay)) {
-      document.body.removeChild(overlay);
-    }
-  }, 1500);
 }
 
 home();
