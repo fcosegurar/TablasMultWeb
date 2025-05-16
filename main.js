@@ -432,8 +432,8 @@ function checkAdventureAnswer(){
 }
 
 function victoryAdventure(){
-  addToken();
-  alert(`¡Victoria en la aventura con ${score} puntos! Has ganado un token.`);
+  for(let i=0; i<3; i++) addToken();
+  alert(`¡Victoria en la aventura con ${score} puntos! Has ganado 3 tokens.`);
   saveRecord(playerName,score);
   showMenu();
 }
