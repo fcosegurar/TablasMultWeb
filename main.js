@@ -8,7 +8,6 @@ function preloadCardImages() {
   });
 }
 
-preloadCardImages();
 
 // Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
 const ADVENTURE_STAGES = [
@@ -49,6 +48,8 @@ const CARDS = [
   { id: "card8", rarity: "R", src: "assets/card8.png" },
   { id: "card9", rarity: "SSR", src: "assets/card9.png" }
 ];
+
+preloadCardImages();
 
 function getTokens() {
   return parseInt(localStorage.getItem("tokens") || "0", 10);
