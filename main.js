@@ -1,5 +1,10 @@
 const app=document.getElementById('app');
 
+// Initialize tokens for testing: give 2 tokens if none exist
+if (localStorage.getItem("tokens") === null) {
+  localStorage.setItem("tokens", "2");
+}
+
 // Adventure mode configuration, similar to Python Config.ADVENTURE_STAGES
 const ADVENTURE_STAGES = [
   { name: "Etapa 1", tables: [2,3,4], required: 5, bgImage: "stage1.png" },
@@ -25,6 +30,51 @@ let lives=3;
 let current=[2,2];
 let timeLimit=25;
 let timerId=null;
+
+// --- Gacha system setup ---
+const CARDS = [
+  // Example entries; replace or extend with your actual card filenames and rarities
+  { id: "card1", rarity: "R", src: "assets/card1.png" },
+  { id: "card2", rarity: "SR", src: "assets/card2.png" },
+  { id: "card3", rarity: "SSR", src: "assets/card3.png" },
+  { id: "card4", rarity: "UR", src: "assets/card4.png" }
+];
+
+function getTokens() {
+  return parseInt(localStorage.getItem("tokens") || "0", 10);
+}
+function addToken() {
+  const t = getTokens() + 1;
+  localStorage.setItem("tokens", t);
+}
+function useToken() {
+  const t = getTokens();
+  if (t <= 0) { alert("No tienes tokens para usar."); return false; }
+  localStorage.setItem("tokens", t - 1);
+  return true;
+}
+
+function getCollection() {
+  return JSON.parse(localStorage.getItem("collection") || "[]");
+}
+function addToCollection(card) {
+  const coll = getCollection();
+  coll.push(card);
+  localStorage.setItem("collection", JSON.stringify(coll));
+}
+
+function pickRandom(rarity) {
+  const pool = CARDS.filter(c => c.rarity === rarity);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+function rollGacha() {
+  const roll = Math.random();
+  if (roll < 0.01) return pickRandom("UR");
+  if (roll < 0.05) return pickRandom("SSR");
+  if (roll < 0.20) return pickRandom("SR");
+  return pickRandom("R");
+}
+// --- end Gacha setup ---
 
 function saveRecord(name,score){
   const rec=JSON.parse(localStorage.getItem('records')||'[]');
@@ -91,6 +141,7 @@ function showMenu(){
       <button onclick="repasar()">Repasar Tabla</button>
       <button onclick="startScary()">Scary Mode</button>
       <button onclick="showRecords()">Récords</button>
+      <button onclick="showGacha()">Gachapon</button>
       <button onclick="home()">Salir</button>
     </div>`;
 }
@@ -380,7 +431,92 @@ function checkAdventureAnswer(){
 }
 
 function victoryAdventure(){
-  alert(`¡Victoria en la aventura con ${score} puntos!`);
+  addToken();
+  alert(`¡Victoria en la aventura con ${score} puntos! Has ganado un token.`);
   saveRecord(playerName,score);
   showMenu();
+}
+
+function showGacha(){
+  // Ensure testing tokens: if none or zero, grant 2 tokens
+  let tokens = getTokens();
+  if (tokens <= 0) {
+    tokens = 2;
+    localStorage.setItem("tokens", tokens.toString());
+  }
+  app.innerHTML = `
+    <div id="game-area">
+      <h1>🎰 Gachapon 🎰</h1>
+      <div>Tokens: <span id="token-count">${tokens}</span></div>
+      <button onclick="doGacha()">Usar 1 token</button>
+      <button onclick="showCollection()">Ver colección</button>
+      <button onclick="showMenu()">Volver</button>
+      <div id="gacha-result" style="margin-top:1rem;"></div>
+    </div>`;
+}
+
+function doGacha() {
+  if (!useToken()) return;
+  const card = rollGacha();
+  addToCollection(card);
+  // Update displayed token count
+  const tokenElem = document.getElementById('token-count');
+  if(tokenElem) tokenElem.textContent = getTokens();
+
+  // Create popup overlay to show the obtained card
+  const popup = document.createElement('div');
+  popup.className = 'overlay';
+  popup.innerHTML = `
+    <div style="
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 90%;
+      margin: auto;
+    ">
+      <h2>¡Carta Obtenida!</h2>
+      <p><strong>${card.id}</strong> (${card.rarity})</p>
+      <img src="${card.src}" style="max-width:200px; display:block; margin:0.5rem auto;">
+      <button id="close-card-popup">Cerrar</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+  document.getElementById('close-card-popup').addEventListener('click', () => {
+    document.body.removeChild(popup);
+    showGacha();
+  });
+}
+
+function showCollection(){
+  const coll = getCollection();
+  // Group cards by id, counting duplicates
+  const grouped = coll.reduce((acc, card) => {
+    if (acc[card.id]) {
+      acc[card.id].count++;
+    } else {
+      acc[card.id] = { card: card, count: 1 };
+    }
+    return acc;
+  }, {});
+  const list = Object.values(grouped);
+  app.innerHTML = `
+    <div id="game-area">
+      <h1>📚 Mi Colección 📚</h1>
+      <button onclick="showMenu()">Volver</button>
+      <div id="collection-grid" style="
+        display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+        gap:1rem;
+        max-height:70vh;
+        overflow-y:auto;
+        margin-top:1rem;
+      ">
+        ${list.map(item => `
+          <div style="text-align:center;">
+            <img src="${item.card.src}" style="max-width:100%;"/>
+            <div>${item.card.rarity} (×${item.count})</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
 }
